@@ -1,0 +1,19 @@
+Du har arch cachyos med fish som terminal
+"which pip" visar vilken environment som används just nu
+GTX 1070 har sm_61, Cuda 13.1 har slutat supporta allt innan sm_75. Vi behöver alltså alltid se till att denna datorn har CUDA 12.4.
+Om något man laddar ner med pacman innehåller siffror kallas det en compat som kan användas vid sidan av sin originella version av programmet. Säg gcc12 ist för gcc.
+pacman -S "paket" för att ladda ner nåt
+Lägg till en tab med ctrl+shift+t
+Ändra ordning via ctrl+alt+left/right tangenter
+Ta bort en tab i terminalen med "shift+ctrl+w" 
+Undo detta sen:
+# 1. Create a local bin folder                                                                                                                                                                                      (brian_gpu) 
+            mkdir -p $HOME/.local/brian_bin
+
+            # 2. Create 'fake' gcc and g++ commands that actually run version 14
+            ln -sf /usr/bin/gcc-14 $HOME/.local/brian_bin/gcc
+            ln -sf /usr/bin/g++-14 $HOME/.local/brian_bin/g++
+
+            # 3. Tell your current terminal to look there first
+            export PATH="$HOME/.local/brian_bin:$PATH"
+

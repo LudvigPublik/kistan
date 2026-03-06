@@ -1,0 +1,14 @@
+Installation av neovim:
+sudo apt get neovim eller pacman -S neovim
+sudo pacman -S wl-clipboard (för att kunna copy paste utanför vim)
+
+
+o: insert line under pointer
+gg: gå upp hela vägen
+G: gå ner men då börjar man på första ordet
+:%x där x kan bytas ut mot d(ta bort allt i dokumentet),(y: yanka allt),(normal:indenta allt)
+shift +  5  går man till sista ordet längst till höger. Så gg v shift + g och sen shift + 5 markerar allt
+yy för att copy line
+"+y för att sätta copiet i system register så att det funkar utanför vim också :)
+om det står "+yy så betyder det att man ska skriva in de 4 olika tangenterna
+/ för att söka
