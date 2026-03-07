@@ -1,0 +1,73 @@
+docker ps                 # Running containers
+docker ps -a              # All containers
+docker images             # Local images
+docker build -t name .    # Build from Dockerfile
+docker run --rm -it img   # Run interactive
+docker run --gpus all ... # GPU access
+docker stop id            # Stop container
+docker rm id              # Remove container
+docker rmi img            # Remove image
+docker system prune       # Clean everything
+
+För CUDA med strul!:
+
+1. Installera docker:
+sudo pacman -S docker
+sudo systemctl enable --now docker
+
+2. Fixa Nvidia grejer:
+sudo pacman -S nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+
+3. Kolla så att den är igång:
+sudo systemctl status docker
+
+4. Kolla så att nvidia-smi fungerar på versionen som behöver användas:
+docker run --rm --gpus all nvidia/cuda:12.1.1-runtime-ubuntu22.04 nvidia-smi
+
+5. Här ska rätt grafikkort visas
+
+6. Sätt upp användare:
+_
+sudo usermod -aG docker $USER
+
+7. Verifiera att du är medlem:
+
+groups
+
+8. Uppdatera:
+newgrp docker
+
+9. Se aktiva docker containers:
+docker ps
+
+10. Skapa nytt dir:
+mkdir -p ~/brain2cuda-docker && cd ~/brain2cuda-docker
+
+11. Skapa Dockerfile:
+nvim Dockerfile
+
+12. Klistra in:
+
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04
+
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-dev git build-essential && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN python3 -m pip install --upgrade pip && \
+    python3 -m pip install brian2 brian2cuda
+
+WORKDIR /workspace
+CMD ["/bin/bash"]
+
+13. Bygg:
+docker build -t brain2cuda:12.1 .
+
+14. Förklaring:
+docker build -t <name>:<tag> .
+
+15. Kolla images
+docker images
+

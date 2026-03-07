@@ -1,4 +1,4 @@
-Du har arch cachyos med fish som terminal
+Du har arch cachyos med fish som terminal(KDE konsol)
 "which pip" visar vilken environment som används just nu
 GTX 1070 har sm_61, Cuda 13.1 har slutat supporta allt innan sm_75. Vi behöver alltså alltid se till att denna datorn har CUDA 12.4.
 Om något man laddar ner med pacman innehåller siffror kallas det en compat som kan användas vid sidan av sin originella version av programmet. Säg gcc12 ist för gcc.
@@ -16,4 +16,5 @@ Undo detta sen:
 
             # 3. Tell your current terminal to look there first
             export PATH="$HOME/.local/brian_bin:$PATH"
+
 
