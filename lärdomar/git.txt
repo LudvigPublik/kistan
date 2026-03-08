@@ -1,0 +1,80 @@
+gh auth status
+gh auth logout
+gh auth login
+
+
+
+SSH nycklar sparas i /.ssh
+HTTPS låter en logga in via webbläsaren
+
+Sätta upp nytt repo:
+git init
+git add .
+git commit -m "Initial commit"
+gh repo create
+
+Sluta tracka en viss fil:
+git rm -r --cached node_modules
+
+
+
+Se vem du är inloggad som:
+gh auth status
+
+Se vilket repo du slår mot:
+git remote -v
+
+| Command      | What it does                | 
+| ------------ | --------------------------- |
+| `git init`   | Start tracking your project |   
+| `git add`    | Choose files to save        | 
+| `git commit` | Save your basket            |
+| `git push`   | Upload to GitHub            |
+| `git pull`   | Download new changes        | 
+| `git status` | Check what’s going on       |
+| `git log`    | View history                |
+| `git branch` | Try new ideas safely        |
+
+Sätta upp en ny branch:
+git switch -c namn-på-branch origin/main
+
+git push -u origin namn-på-branch
+
+Byta branch:
+git switch main
+
+
+git branch:
+Se vilken gren du är på
+
+
+
+
+
+
+
+
+User stories (different roles), use cases, requirements, assumptions:
+Customer:
+Buy products
+Remove from basket
+Leave reviews
+Sort product catalogue
+See earlier orders
+Drop all tables
+
+
+Admin:
+Same as Customer plus:
+Ban users
+Update products
+
+
+Owner: 
+Same as Admin plus:
+Change role of customers to admin
+
+
+productId,name,cleanName,imageUrl,categoryId,groupId,url,modifiedOn,imageCount,extNumber,extRarity,extCardType,extHP,extStage,extCardText,extAttack1,extWeakness,extResistance,extRetreatCost,lowPrice,midPrice,highPrice,marketPrice,directLowPrice,subTypeName,extAttack2
+
+productId,name,cleanName,imageUrl,categoryId,groupId,url,modifiedOn,imageCount,extNumber,extRarity,extCardType,extHP,extStage,extAttack1,extAttack2,extWeakness,extRetreatCost,lowPrice,midPrice,highPrice,marketPrice,directLowPrice,subTypeName,extCardText,extResistance

@@ -1,0 +1,5 @@
+npm init -y
+skapa index.js
+ändra från commonjs till modul under type i package.json
+npm run start
+

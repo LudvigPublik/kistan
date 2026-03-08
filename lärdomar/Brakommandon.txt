@@ -1,0 +1,16 @@
+Visa alla enheter på nätverket:
+sudo arp-scan --localnet
+
+Visa vad som är öppet mot port 3000
+lsof -i :3000
+
+Visa var en applikation med PID = 5495 körs ifrån:
+ps -p 54985 -o args=
+
+Lista alla wifi:
+nmcli dev wifi list
+
+Lägg till nytt nätverk
+sudo nmcli device wifi connect "Rebecka" password "abcd1234"
+
+sudo raspi-config för att ändra boot inställningar. Kan sätta namn istället för IP när man SSH:ar in. System Options -> hostname. Sätt till typ lfs så kan man skriva ssh lfs@vcu
