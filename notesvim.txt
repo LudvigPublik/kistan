@@ -12,3 +12,16 @@ yy för att copy line
 "+y för att sätta copiet i system register så att det funkar utanför vim också :)
 om det står "+yy så betyder det att man ska skriva in de 4 olika tangenterna
 / för att söka
+
+To get the same setup on external computer:
+sudo apt update
+sudo apt get neovim
+eller
+brew install neovim
+
+then:
+ln -s ~/kistan/nvim ~/.config/nvim
+Run this to see if it worked:
+ls -l ~/.config/nvim/
+total 0
+lrwxr-xr-x  1 ludvig  staff  34 10 Mar 16:41 init.vim -> /Users/ludvig/kistan/nvim/init.vim
