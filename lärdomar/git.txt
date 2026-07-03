@@ -1,7 +1,7 @@
 gh auth status
 gh auth logout
 gh auth login
-gh switch -u LudvigLV
+gh auth switch -u LudvigLV
 
 
 SSH nycklar sparas i /.ssh

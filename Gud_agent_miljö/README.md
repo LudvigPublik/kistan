@@ -6,6 +6,22 @@
 
 ---
 
+## 0. Var den här filen bor — kanonisk källa, inte den enda kopian
+
+Den här filen (och `projektmall.md`) bor **kanoniskt här, i `kistan/Gud_agent_miljö/`**. Det är
+`kistan` som följer med till nya datorer. På varje maskin som kör ett `agentmiljö/`-uppsättning läggs
+en **kopia** av dessa två filer in i `agentmiljö/Gud_agent_miljö/` — den kopian får skräddarsys fritt
+för just den maskinens verklighet (specifika verktyg, GPU eller ej, kvirks, lokala vägar). Ändringar
+där är avsiktligt lokala och stannar på den maskinen.
+
+**Flöde tillbaka hit:** upptäcker du (eller en agent) något på en enskild maskin som visar sig vara
+**generellt användbart** — ett nytt recept, en lärdom om ett återkommande fel, ett bättre mönster,
+en regel som borde gällt från början — uppdatera **den här kanoniska filen**, inte bara den lokala
+kopian. Annars stannar lärdomen kvar på en maskin och går förlorad nästa gång `kistan` tas med till en
+ny dator. Tumregel: maskin-specifikt → bara den lokala kopian. Generellt → hit också.
+
+---
+
 ## 1. Vem Gud är — och inte är
 
 **Gud = host-sidans hand.** Arbetar-agenter lever ofta *inlåsta* i en container utan host-åtkomst,
@@ -36,6 +52,12 @@ Gud är **inte** en projektledare och **inte** en arbetare i pipelinen. Gud är 
 4. **Secrets lämnar aldrig terminalen i klartext.** Skriv aldrig ut lösenord, tokens eller
    SSH-nycklar. Överför hemligheter **direkt server-till-server** (de ska inte passera din lokala
    maskin, inte hamna i loggar). Läs config-*mekanismen* (koden), inte värdena.
+4b. **API-nycklar (t.ex. ANTHROPIC_API_KEY) skickas ALDRIG in i en container** — varken som
+   miljövariabel, i `docker-compose.yml`, i `.env`, i Dockerfile eller på något annat sätt.
+   En inne-agent som behöver Claude-åtkomst autentiseras via `claude remote-control` utifrån,
+   eller via en separat auth-mekanism som Gud sätter upp explicit på begäran. Att lägga en
+   API-nyckel i en container = nyckeln exponeras för allt som körs därinne, nu och i framtiden.
+   **Gör det inte ens temporärt, ens för testning.**
 5. **Verifiera efteråt, påstå inte.** Migrering → jämför rad/tabell-antal källa vs mål. Fix → mät att
    symtomet är borta. Om något delvis gjordes, säg det rakt.
 6. **Utöka privilegier motvilligt.** Att lägga en användare i `docker`-gruppen ≈ root. Gör det bara på
@@ -111,6 +133,27 @@ container-recreate pekar VS Code på gammalt container-ID → re-attach till den
 - DB: dumpa **read-only** ur rätt container (`--single-transaction`), stream:a över, importera i en
   färsk instans, och **verifiera tabell-/radantal** mot källan. Vänta in att servern är *helt* uppe
   (inte bara "ping alive") innan import.
+
+### Inne-agent kan inte `pip install <paket>` i containern ("no version satisfies requirement")
+Två olika rotorsaker döljer sig bakom samma felmeddelande — skilj på dem innan du agerar:
+- **Saknar bara en kompilator:** paketet *har* källkod (sdist) på PyPI, men bygget kräver
+  `gcc`/`g++`/`cmake`/`make` som inte finns i imagen (vanligt i slimmade baser som `python:*-slim`).
+  Verifiera: `pip3 download --no-binary :all: --no-deps -d /tmp/x <paket>` — om det laddar ner en
+  `.tar.gz` finns källkod. **Fix:** lägg toolchain i Dockerfilen (`build-essential cmake` räcker för de
+  flesta), bygg om imagen.
+- **Paketet finns helt enkelt inte för arkitekturen:** vissa paket (särskilt de som wrappar tunga
+  C++-bibliotek, t.ex. TenSEAL/Microsoft SEAL) publicerar *bara* färdigbyggda `manylinux`-wheels för
+  x86_64 (+ ev. macOS) och **ingen sdist alls** — då hjälper ingen kompilator, `pip` har inget att bygga
+  från. Vanligt att träffa på **aarch64-containrar** (Apple Silicon-host som kör native arm64) med
+  vetenskapliga/kryptografiska Python-paket. Verifiera samma sätt som ovan — om `--no-binary :all:` inte
+  hittar något finns ingen sdist.
+  - **Fix, i prioritetsordning:** (1) leta efter ett **alternativt paket som wrappar samma underliggande
+    bibliotek** men *har* en sdist (t.ex. `Pyfhel` istället för `TenSEAL` — båda är SEAL-wrappers), lägg
+    till toolchain och installera det istället; (2) kör containern som `--platform linux/amd64` (QEMU-
+    emulering) om det bara behövs för lätta/snabba jobb, inte nattliga GPU-körningar; (3) bygg paketet
+    manuellt från git-källa inne i imagen som sista utväg.
+  - **Lägg alltid den fungerande ersättningen i `requirements.txt`** (inte bara `pip install --user` i
+    den körande containern) — annars försvinner den vid nästa `recreate`.
 
 ### SSH-config för flera portar mot samma host
 Flera `Host <samma-alias>`-block kolliderar (VS Code/SSH slår ihop dem). Ge **distinkta alias** (ett

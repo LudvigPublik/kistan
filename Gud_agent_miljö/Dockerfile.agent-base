@@ -1,0 +1,39 @@
+# Delad basimage för Python-baserade agent-containrar i agentmiljö/.
+# Bygg lokalt en gång per maskin med build-base.sh i denna mapp — inget registry inblandat.
+# Ger: Python 3.11 + Node 20 + Claude Code + icke-root "agent"-user (uid 1000) + förgodkänd
+# workspace-trust. Projektspecifika Dockerfiles gör bara `FROM agent-base:latest` och lägger
+# till sina egna beroenden (requirements.txt, GPU-paket, etc) — se projektmall.md §3b.
+#
+# Passar Python-agentcontainrar (t.ex. neuralock, wordskip, grafikköp). Node/app-specifika
+# containrar (t.ex. Betting_container) har annan bas och byggs som förut.
+FROM python:3.11-slim
+
+# build-essential/cmake: krävs för att bygga C++-paket från källkod när det saknas
+# manylinux-wheels för arkitekturen (t.ex. aarch64) — se README.md §6 "pip install"-receptet.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl ca-certificates git jq procps vim-tiny gnupg \
+    build-essential cmake \
+    && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs \
+    && rm -rf /var/lib/apt/lists/*
+
+# Claude Code globalt (root → hamnar i /usr/local, körbar av alla användare)
+RUN npm install -g @anthropic-ai/claude-code
+
+# Icke-root agent-användare (uid 1000 matchar vanlig host-användare → inga äganderätts-problem)
+RUN useradd -m -u 1000 -s /bin/bash agent
+
+# Förgodkänn workspace-trust för /workspace (samma sökväg i alla projekt som ärver denna
+# bas) → `claude`/`claude remote-control` startar utan att fastna på trust-dialogen.
+RUN mkdir -p /home/agent/.claude \
+    && node -e "require('fs').writeFileSync('/home/agent/.claude.json', JSON.stringify({ \
+        hasCompletedOnboarding: true, \
+        projects: { '/workspace': { hasTrustDialogAccepted: true } } \
+    }, null, 2))" \
+    && chown -R agent:agent /home/agent
+
+WORKDIR /workspace
+
+# Lämnas som root här (ej `USER agent` växlat än) så att en ärvande Dockerfile kan göra
+# egna apt-/pip-installer som root innan den själv växlar med `USER agent` på slutet.
+CMD ["bash"]

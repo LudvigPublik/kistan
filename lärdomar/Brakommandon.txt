@@ -14,3 +14,8 @@ Lägg till nytt nätverk
 sudo nmcli device wifi connect "Rebecka" password "abcd1234"
 
 sudo raspi-config för att ändra boot inställningar. Kan sätta namn istället för IP när man SSH:ar in. System Options -> hostname. Sätt till typ lfs så kan man skriva ssh lfs@vcu
+
+
+ssh viglu@desktop-stor
+
+ssh viglu@desktop-liten

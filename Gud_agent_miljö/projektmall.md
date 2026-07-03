@@ -44,6 +44,34 @@ självkörande team orienterat.
 
 ---
 
+## 3b. Delad basimage — bygg inte samma lager om och om igen
+
+Python-agentcontainrar (Claude Code + non-root `agent`-user + förgodkänd workspace-trust) är
+i praktiken identiska mellan projekt — bara `requirements.txt`/GPU/portar skiljer. Duplicera
+inte den preambeln i varje nytt projekts Dockerfile:
+
+1. **En gång per maskin** (eller när basen ändras): `Gud_agent_miljö/build-base.sh` bygger
+   `agent-base:latest` från `Gud_agent_miljö/Dockerfile.agent-base` (Python 3.11 + Node 20 +
+   Claude Code + `agent`-user uid 1000 + trust-preapprove).
+2. **Nytt projekts Dockerfile** gör bara:
+   ```dockerfile
+   FROM agent-base:latest
+   COPY requirements.txt /tmp/requirements.txt
+   RUN pip install --no-cache-dir -r /tmp/requirements.txt
+   WORKDIR /workspace
+   USER agent
+   CMD ["bash"]
+   ```
+   (`agent-base` lämnar containern som root efter `WORKDIR /workspace` — så att projektet kan
+   göra egna apt-/pip-installer som root innan det själv växlar med `USER agent`.)
+3. Om `agent-base:latest` saknas lokalt (ny maskin) — kör `build-base.sh` som steg 0 innan
+   `docker compose up -d --build` på det nya projektet.
+
+Gäller Python-baserade agentcontainrar. Node/app-specifika containrar (t.ex. en Node-app som
+själv är produkten, inte bara ett agent-skal) har egen bas och följer inte detta mönster.
+
+---
+
 ## 3. Inlåsning — den säkra containern som "burar in" agenten
 
 Målet: en agent som kan koda, träna och köra fritt **inne**, men inte kan nå produktion eller skada

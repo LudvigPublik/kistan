@@ -15,7 +15,7 @@ om det står "+yy så betyder det att man ska skriva in de 4 olika tangenterna
 
 To get the same setup on external computer:
 sudo apt update
-sudo apt get neovim
+sudo apt install neovim
 eller
 brew install neovim
 
